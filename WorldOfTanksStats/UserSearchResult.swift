@@ -21,6 +21,7 @@ struct Datas {
     struct Id : Codable{
         let idName : String
         let statistics: Statistics
+        let globalRating: Int
     }
     var idArray: [Id]
     
@@ -45,7 +46,7 @@ extension Datas: Encodable {
         init?(intValue: Int) { return nil }
 
         static let statistics = IdKey(stringValue: "statistics")!
-        
+        static let globalRating = IdKey(stringValue: "global_rating")!
     }
     
     func encode(to encoder: Encoder) throws {
@@ -55,6 +56,7 @@ extension Datas: Encodable {
             let idKey = IdKey(stringValue: id.idName)!
             var idContainer = container.nestedContainer(keyedBy: IdKey.self, forKey: idKey)
             try idContainer.encode(id.statistics, forKey: .statistics)
+            try idContainer.encode(id.globalRating, forKey: .globalRating)
 
         }
     }
@@ -66,8 +68,10 @@ extension Datas: Decodable {
         let container = try decoder.container(keyedBy: IdKey.self)
         for key in container.allKeys {
             let idContainer = try container.nestedContainer(keyedBy: IdKey.self, forKey: key)
+            
             let statistics = try idContainer.decode(Statistics.self, forKey: .statistics)
-            let id = Id(idName: key.stringValue, statistics: statistics)
+            let globalRating = try idContainer.decode(Int.self, forKey: .globalRating)
+            let id = Id(idName: key.stringValue, statistics: statistics, globalRating: globalRating)
             idArray.append(id)
         }
         self.init(idArray: idArray)
