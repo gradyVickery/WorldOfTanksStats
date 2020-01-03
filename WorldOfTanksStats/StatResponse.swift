@@ -8,18 +8,18 @@
 
 import Foundation
 
-struct UserResponse: Codable {
+struct StatResponse: Codable {
     let status: String
     let meta: Meta
-    let data: Datas
+    let data: UserData
 }
 
 struct Meta: Codable {
     let count: Int
 }
-struct Datas {
-    struct Id : Codable{
-        let idName : String
+struct UserData {
+    struct Id : Codable {
+        let idString : String
         let statistics: Statistics
         let globalRating: Int
     }
@@ -33,9 +33,17 @@ struct Datas {
 struct Statistics: Codable {
     let max_xp: Int
     let trees_cut: Int
+    let all: All
+    
+    struct All: Codable {
+        let spotted: Int
+    }
 }
 
-extension Datas: Encodable {
+
+
+// Extensions for UserData struct...Encodable/Decodable
+extension UserData: Encodable {
     struct IdKey: CodingKey {
         var stringValue: String
         init?(stringValue: String) {
@@ -53,7 +61,7 @@ extension Datas: Encodable {
         var container = encoder.container(keyedBy: IdKey.self)
         
         for id in idArray {
-            let idKey = IdKey(stringValue: id.idName)!
+            let idKey = IdKey(stringValue: id.idString)!
             var idContainer = container.nestedContainer(keyedBy: IdKey.self, forKey: idKey)
             try idContainer.encode(id.statistics, forKey: .statistics)
             try idContainer.encode(id.globalRating, forKey: .globalRating)
@@ -62,7 +70,7 @@ extension Datas: Encodable {
     }
 }
 
-extension Datas: Decodable {
+extension UserData: Decodable {
     public init(from decoder: Decoder) throws {
         var idArray = [Id]()
         let container = try decoder.container(keyedBy: IdKey.self)
@@ -71,7 +79,7 @@ extension Datas: Decodable {
             
             let statistics = try idContainer.decode(Statistics.self, forKey: .statistics)
             let globalRating = try idContainer.decode(Int.self, forKey: .globalRating)
-            let id = Id(idName: key.stringValue, statistics: statistics, globalRating: globalRating)
+            let id = Id(idString: key.stringValue, statistics: statistics, globalRating: globalRating)
             idArray.append(id)
         }
         self.init(idArray: idArray)
@@ -79,21 +87,7 @@ extension Datas: Decodable {
 }
 
     
- // Search via User 'nickname' models below
 
-class ResultData: Codable {
-    var data = [UserSearchResult]()
-}
-
-class UserSearchResult: Codable, CustomStringConvertible {
-    var nickname = ""
-    var account_id = 0
-    
-    var description: String {
-        return "\(account_id)"
-    }
-    
-}
 
 
 

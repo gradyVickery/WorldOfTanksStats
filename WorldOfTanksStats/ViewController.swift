@@ -10,7 +10,7 @@ import UIKit
 
 class ViewController: UIViewController {
 
-    var searchResults = [Datas.Id]()
+    var searchResults = [UserData.Id]()
     var hasSearched = false
     var badSearch = false
     var account_id = 0
@@ -78,6 +78,7 @@ class ViewController: UIViewController {
             maxXpLabel.text = String(searchResults[0].statistics.max_xp)
             treesCutLabel.text = String(searchResults[0].statistics.trees_cut)
             globalRatingLabel.text = String(searchResults[0].globalRating)
+            print(searchResults[0].statistics.all.spotted)
             
         } else  if badSearch {
             playerNameLabel.text = "Player not found, please try again"
@@ -114,23 +115,23 @@ class ViewController: UIViewController {
         }
     }
         
-    func parseForUserId(data: Data) -> [UserSearchResult] {
+    func parseForUserId(data: Data) -> [NameSearchResult] {
         do {
             let decoder = JSONDecoder()
-            let result = try decoder.decode(ResultData.self, from: data)
+            let result = try decoder.decode(UserNameResponse.self, from: data)
             return result.data
         } catch {
             print("JSON error11 \(error)")
-            return [UserSearchResult]()
+            return [NameSearchResult]()
         }
     }
     
     // parsing second fetch via account_id
-    func parseForStats(data: Data) -> [Datas.Id] {
+    func parseForStats(data: Data) -> [UserData.Id] {
         
         do {
             let decoder = JSONDecoder()
-            let result = try decoder.decode(UserResponse.self, from: data)
+            let result = try decoder.decode(StatResponse.self, from: data)
             let stats = result.data.idArray[0]
            
             
